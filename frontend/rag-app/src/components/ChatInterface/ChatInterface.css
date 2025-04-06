@@ -1,0 +1,98 @@
+/* src/components/ChatInterface/ChatInterface.css */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 400px; /* Hoặc chiều cao mong muốn */
+    border: 1px solid #eee;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .message-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 15px;
+    max-width: 70%;
+    word-wrap: break-word;
+  }
+  
+  .message.user {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 5px;
+  }
+  
+  .message.assistant {
+    background-color: #e9e9eb;
+    color: #333;
+    align-self: flex-start;
+    border-bottom-left-radius: 5px;
+  }
+  
+  .message-sender {
+    font-weight: bold;
+    font-size: 0.8em;
+    margin-bottom: 3px;
+    display: block;
+  }
+  
+  .chat-input-area {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #eee;
+    background-color: #fff;
+  }
+  
+  .chat-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    margin-right: 10px;
+    outline: none;
+    font-size: 1em;
+  }
+  
+  .chat-input:focus {
+      border-color: #007bff;
+  }
+  
+  
+  .send-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+  }
+  
+  .send-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .send-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .loading-indicator, .error-message {
+      text-align: center;
+      padding: 10px;
+      color: #888;
+  }
+  .error-message {
+      color: red;
+  }
