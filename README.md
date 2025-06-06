@@ -30,8 +30,8 @@ Follow these steps to get your development environment set up:
 
 1.  **Clone the repository:**
     ```bash
-    git clone [your-repository-url]
-    cd [your-project-directory]
+    git clone https://github.com/HienNguyenVinh/agentic_rag_using_gemini.git
+    cd agentic_rag_using_gemini
     ```
 
 2.  **Backend Setup:**
