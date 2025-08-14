@@ -4,6 +4,8 @@ from .user_services import insert_user
 from .db_connection import get_db_connection
 from .db_connection import db_name, db_user, db_password, db_host, db_port
 from .chat_history_services import creat_db_chat_history_table
+from .product_services import configuration_for_search
+
 
 
 def init_db_tables():
@@ -101,4 +103,5 @@ def seed_data():
 if __name__ == "__main__":
     init_db_tables()
     seed_data()
+    configuration_for_search()
     
