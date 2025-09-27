@@ -41,10 +41,13 @@ def init_db_tables():
                 create_order_table = """
                 CREATE TABLE IF NOT EXISTS "order" (
                     id SERIAL PRIMARY KEY,
-                    user_id INT NOT NULL,
+                    customer_name TEXT NOT NULL,
+                    phone TEXT NOT NULL,
+                    address TEXT NOT NULL,
                     product_id INT NOT NULL,
                     quantity INT NOT NULL,
                     total_amount NUMERIC(10, 2) NOT NULL,
+                    status VARCHAR(255),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
                     FOREIGN KEY (product_id) REFERENCES "product"(id) ON DELETE CASCADE
