@@ -19,6 +19,12 @@ Frontend: React. Backend: FastAPI. LLM: Google Gemini. Two backend flavors shown
 
 ---
 
+# Demo
+
+YouTube demo: [https://youtu.be/ip9\_BZqYyn8](https://youtu.be/ip9_BZqYyn8)
+
+---
+
 # 🏛️ Backend V1 architecture (google-genai sdk)
 
 * A standard FastAPI app that:
@@ -264,11 +270,3 @@ Essential endpoints that your frontend can call (FastAPI wrappers around graph):
 3. Add small nodes first: `determine_agent` → `rag` → `response`. Then add order flow nodes.
 4. Add checkpointing (MemorySaver) only after flow is stable.
 5. Write unit tests for nodes (e.g., `extract_order_info` should parse many user phrasings).
-
----
-
-# Demo
-
-YouTube demo: [https://youtu.be/ip9\_BZqYyn8](https://youtu.be/ip9_BZqYyn8)
-
----
