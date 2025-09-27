@@ -81,4 +81,24 @@ def get_chat_history(thread_id: str, limit: int=20) -> Optional[Dict]:
         print(f"Lỗi khi lấy lịch sử trò chuyện: {error}")
         return None
     
+def format_chat_history(chat_history: List[Dict]) -> Optional[List]:
+    if chat_history:
+        formatted_history = []
+        for message in reversed(chat_history):
+            formatted_history.append(types.Content(role="user", parts=[types.Part(text=message["user_question"])]))
+            if message["function_call"]:
+                fc_dict = json.loads(message["function_call"])
+                formatted_history.append(types.Content(role="model", 
+                                                       parts=[types.Part(function_call=FunctionCall(name = fc_dict["name"], args=fc_dict["args"]))]))
+
+            if message["function_response"]:
+                fr_dict = json.loads(message["function_response"])
+                formatted_history.append(types.Content(role="user", 
+                                                       parts=[types.Part(function_response=FunctionResponse(name=fr_dict["name"], response=fr_dict["response"]))]))
+                
+            formatted_history.append(types.Content(role="model", parts=[types.Part(text=message["bot_answer"])]))
+    else:
+        return []
+
+    return formatted_history
     

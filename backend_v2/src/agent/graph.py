@@ -12,7 +12,8 @@ import os
 
 from .states import AgentState, InputState
 from agent.sub_graph import order_graph, rag_graph
-from.prompts import ROUTER_SYSTEM_PROMPT, MORE_INFO_SYSTEM_PROMPT, EXTRACT_ORDER_SYSTEM_PROMPT, RAG_RESPONSE_PROMPT, ORDER_RESPONSE_PROMPT, CHITCHAT_RESPONSE_PROMPT
+from .prompts import ROUTER_SYSTEM_PROMPT, MORE_INFO_SYSTEM_PROMPT, EXTRACT_ORDER_SYSTEM_PROMPT, RAG_RESPONSE_PROMPT, ORDER_RESPONSE_PROMPT, CHITCHAT_RESPONSE_PROMPT
+from db_helper.chat_history_services import get_chat_history, format_chat_history, save_message
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -33,7 +34,9 @@ class Router:
 class OrderInfo:
     """Order extraction schema.
     All fields are integers. Use 0 to signal unknown/missing values."""
-    user_id: int
+    user_name: str
+    user_phone: str
+    user_address: str
     product_id: int
     quantity: int
 
@@ -52,16 +55,24 @@ async def determine_agent(
         Dict[str, str]: Dictionary with key 'router' set to 'order' or 'product_infomation'.
     """
 
+    user_input = state['messages'][-1].content
+    current_chat = state.get("current_chat")
+    if current_chat is None:
+        current_chat = []
+    current_chat.append({"role": "user", "content": user_input})
+
     messages = [
         {"role": "system", "content": ROUTER_SYSTEM_PROMPT},
-    ] + state.messages
+    ] + current_chat
 
     logging.info("---ANALYZE AND ROUTE QUERY---")
     logging.info(f"MESSAGES: {state.messages}")
     response = cast(Router, await model.with_structured_output(Router).ainvoke(messages))
     logging.info(f"ROUTER TO {response}")
+
     print(state.messages[-1].content)
-    return {"router": response['router']}
+    return {"router": response['router'],
+            "current_chat": current_chat}
 
 def router_query(state: AgentState) -> Literal["check_order_info", "rag"]:
     """
@@ -109,8 +120,12 @@ def check_order_info(state: AgentState) -> Dict[str, str]:
     """
 
     lack_info = []
-    if state.user_id is not None:
-        lack_info.append("user_id")
+    if state.user_name is not None:
+        lack_info.append("user_name")
+    if state.user_phone is not None:
+        lack_info.append("user_phone")
+    if state.user_address is not None:
+        lack_info.append("user_address")
     if state.current_product_id is not None:
         lack_info.append("current_product_id")
     if state.current_product_quantity is not None:
@@ -149,11 +164,14 @@ async def ask_for_order_info(
 
     messages = [
         {"role": "system", "content": MORE_INFO_SYSTEM_PROMPT},
-    ] + state.messages
+    ] + state.current_chat
 
     response = await model.ainvoke(messages)
+    current_chat = state["current_chat"]
+    current_chat.append({"role": "bot_answer", "content": response.content})
 
-    return {"messages": [response]}
+    return {"messages": [response],
+            "current_chat": current_chat}
 
 async def extract_order_info(
         state: AgentState, *, config: RunnableConfig
@@ -166,7 +184,7 @@ async def extract_order_info(
         config (RunnableConfig): Runtime configuration.
 
     Returns:
-        Dict[str, Any]: Dictionary with user_id, current_product_id, and current_product_quantity.
+        Dict[str, Any]: Dictionary with user_name, user_phone, user_address, current_product_id, and current_product_quantity.
     """
 
     messages = [
@@ -176,7 +194,9 @@ async def extract_order_info(
     response = cast(OrderInfo, await model.with_structured_output(OrderInfo).ainvoke(messages))
 
     return {
-        "user_id": response.user_id,
+        "user_name": response.user_name,
+        "user_phone": response.user_phone,
+        "user_address": response.user_address,
         "current_product_id": response.product_id,
         "current_product_quantity": response.quantity,
     }
@@ -193,7 +213,9 @@ async def create_order(state: AgentState):
     """
 
     result = await order_graph.ainvoke({
-        "user_id": state.user_id,
+        "user_name": state.user_name,
+        "user_phone": state.user_phone,
+        "user_address": state.user_address,
         "product_id": state.current_product_id,
         "quantity": state.current_product_quantity,
     })
@@ -226,11 +248,15 @@ async def response(
 
     messages = [
         {"role": "system", "content": prompt},
-    ] + state.messages
+    ] + state.current_chat
 
     response = await model.ainvoke(messages)
 
-    return {"messages": [response]}
+    current_chat = state["current_chat"]
+    current_chat.append({"role": "bot_answer", "content": response.content})
+
+    return {"messages": [response],
+            "current_chat": current_chat}
 
 
 conn = sqlite3.connect(database="chathistory.db", check_same_thread=False)

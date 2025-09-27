@@ -93,7 +93,7 @@ Return only the user-facing message (plain text). Respond in the same language a
 
 
 EXTRACT_ORDER_SYSTEM_PROMPT = """
-You are an order parser for a bookstore chatbot. Given the latest user reply (and recent context), extract three integer fields exactly: `user_id`, `product_id`, and `quantity`.
+You are an order parser for a bookstore chatbot. Given the latest user reply (and recent context), extract three integer fields exactly: `user_name`, `user_phone`, `user_address`, `product_id`, and `quantity`.
 
 Output rules:
 1. Return only a structured object with three integer fields: user_id, product_id, quantity — nothing else.

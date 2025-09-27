@@ -5,7 +5,9 @@ from langchain_core.messages import BaseMessage
 
 @dataclass(kw_only=True)
 class InputState:
-    user_id: Optional[int]
+    user_name: Optional[str]
+    user_phone: Optional[str]
+    user_address: Optional[str]
     product_id: Optional[int]
     quantity: Optional[int]
 
